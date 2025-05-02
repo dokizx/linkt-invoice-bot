@@ -20,14 +20,14 @@ def extract_expenses_from_pdf(pdf_file):
             if not text:
                 continue
 
-            # Tagged charges (plate + value)
-            tagged = re.findall(r"([A-Z0-9]{3,})\s+[A-Z]{2,3}\s+[A-Z]{2,3}\s+\d+\s+\$(\d+\.\d{2})", text)
-            for rego, amount in tagged:
+            # Match trips without a tag (lines with Fleet ID, Licence plate, Trips, and Amount)
+            matches = re.findall(r"\n\s*.+?\s+([A-Z0-9]{3,})\s+[A-Z]{2,3}\s+[A-Z]{2,3}\s+\d+\s+\$(\d+\.\d{2})", text)
+            for rego, amount in matches:
                 charges[rego] += float(amount)
 
-            # Video matching fees
-            video_fees = re.findall(r"Video Matching Fee-([A-Z0-9]{3,}) .*?\$(\d+\.\d{2})", text)
-            for rego, amount in video_fees:
+            # Match video matching fees
+            video_matches = re.findall(r"Video Matching Fee-([A-Z0-9]{3,}) .*?\$(\d+\.\d{2})", text)
+            for rego, amount in video_matches:
                 charges[rego] += float(amount)
 
     return pd.DataFrame(list(charges.items()), columns=['Current LPN', 'Total Amount'])
